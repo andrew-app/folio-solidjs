@@ -5,7 +5,7 @@ const Nav: Component = () => {
         return (document.getElementById(id)!.scrollIntoView({ block: 'start',  behavior: 'smooth' })!);
     }
     return (
-        <header class="sticky top-0 z-50 transparent text-yellow-400 text-right bg-black">
+        <header class="sticky top-0 z-[1] transparent text-yellow-400 text-right bg-black">
         <button onClick={[handler, "about"]}>About Me</button>
         <br/>
         <button onClick={[handler, "tech"]}>Tech</button>
