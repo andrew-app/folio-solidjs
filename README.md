@@ -1,1 +1,1 @@
-Personal website using solidjs and threejs graphics library.
+Porfolio website build with threejs and solid.
