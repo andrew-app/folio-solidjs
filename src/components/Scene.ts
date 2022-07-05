@@ -4,6 +4,10 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {UnrealBloomPass} from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import titlepath from '../assets/title.glb?url';
+import lipath from '../assets/linkedin.glb?url';
+import borderpath from '../assets/border.glb?url';
+
 export function Scene() {
   const params = {
     exposure: 1.1,
@@ -52,7 +56,7 @@ export function Scene() {
     composer.addPass( bloomPass );
     const loader = new GLTFLoader();
       
-    loader.load("src/assets/title.gltf", (gltf) => {
+    loader.load(titlepath, (gltf) => {
       const model = gltf.scene;
       model.traverse((o:any) => {
         if (o.isMesh) o.material = em;
@@ -84,8 +88,8 @@ export function Scene() {
     composer.addPass( renderScene );
     composer.addPass( bloomPass );
     const loader = new GLTFLoader();
-      
-    loader.load("src/assets/linkedin.gltf", (gltf) => {
+    
+    loader.load(lipath, (gltf) => {
       const model = gltf.scene;
       model.traverse((o:any) => {
         if (o.isMesh) o.material = em_logo;
@@ -93,7 +97,7 @@ export function Scene() {
       sceneInfo.scene.add(model);
     });
 
-    loader.load("src/assets/border.gltf", (gltf) => {
+    loader.load(borderpath, (gltf) => {
       const model = gltf.scene;
       model.traverse((o:any) => {
         if (o.isMesh) o.material = em_border;
@@ -145,11 +149,23 @@ export function Scene() {
 
     renderer.render(scene, camera);
   }
+
+  function neon(val:number){
+    val += 0.075
+    if (val >= 1.2){
+      val = 0.9
+    }
+
+    return val;
+
+  }
+  
   var temp = 0.9;
   let frame = requestAnimationFrame(function loop(time) {
+    frame = requestAnimationFrame(loop);
     time *= 0.01;
+    temp = neon(temp);
     resizeRendererToDisplaySize(renderer);
-  
     renderer.setScissorTest(false);
     renderer.clear(true, true);
     renderer.setScissorTest(true);
@@ -158,14 +174,7 @@ export function Scene() {
     sceneTitle.composer.render();
     linkedin.composer.render();
     renderer.setClearColor( 0x000000, 2 );
-    renderer.toneMappingExposure = Math.pow( temp, 4.0 );
-    temp += 0.075;
-
-    if (temp >= 1.2){
-        temp = 0.9
-    }
-
-    frame = requestAnimationFrame(loop);
+    renderer.toneMappingExposure = Math.pow(temp, 4.0 );
   });
 
   onCleanup(() => {
