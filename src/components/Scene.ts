@@ -19,6 +19,21 @@ export function Scene() {
   const canvas:HTMLCanvasElement = document.querySelector('#c')!;
   const renderer = new THREE.WebGLRenderer({canvas, alpha: true, antialias: true});
   renderer.toneMapping = THREE.ReinhardToneMapping;
+
+  var raycaster = new THREE.Raycaster();
+  var mouse = new THREE.Vector2(-1, -1);
+
+  function onHover(event:any) {
+  // calculate mouse position in normalized device coordinates
+  // (-1 to +1) for both components
+
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  }
+
+  document.addEventListener('mousemove', onHover, false);
+
+
   
   function makeScene(elem:Element) {
     const scene = new THREE.Scene();
@@ -160,11 +175,22 @@ export function Scene() {
 
   }
   
-  var temp = 0.9;
   let frame = requestAnimationFrame(function loop(time) {
+    raycaster.setFromCamera(mouse, linkedin.sceneInfo.camera);
+
+    var intersects = raycaster.intersectObjects(linkedin.sceneInfo.scene.children);
+
+    if (intersects.length > 0) {
+
+      renderer.toneMappingExposure = Math.pow(1.5, 4.0 );
+
+    } else {
+
+      renderer.toneMappingExposure = Math.pow(0.9, 4.0 );
+
+    }
     frame = requestAnimationFrame(loop);
     time *= 0.01;
-    temp = neon(temp);
     resizeRendererToDisplaySize(renderer);
     renderer.setScissorTest(false);
     renderer.clear(true, true);
@@ -174,7 +200,6 @@ export function Scene() {
     sceneTitle.composer.render();
     linkedin.composer.render();
     renderer.setClearColor( 0x000000, 2 );
-    renderer.toneMappingExposure = Math.pow(temp, 4.0 );
   });
 
   onCleanup(() => {
