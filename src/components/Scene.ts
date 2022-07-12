@@ -10,8 +10,8 @@ import borderpath from '../assets/border.glb?url';
 
 export function Scene() {
   const params = {
-    exposure: 1.1,
-    bloomStrength: 1.3,
+    exposure: 1.5,
+    bloomStrength: 0.25,
     bloomThreshold: 0,
     bloomRadius: 0
   };
@@ -65,7 +65,7 @@ export function Scene() {
     bloomPass.threshold = params.bloomThreshold;
     bloomPass.strength = params.bloomStrength;
     bloomPass.radius = params.bloomRadius;
-    const em = new THREE.MeshStandardMaterial({color:0xffc409,emissive:0xf9f06b})
+    const em = new THREE.MeshStandardMaterial({color:0xffc409})
     const composer = new EffectComposer( renderer );
     composer.addPass( renderScene );
     composer.addPass( bloomPass );
@@ -80,25 +80,25 @@ export function Scene() {
     });
     const color = new THREE.Color("rgb(0, 0, 0)")
     sceneInfo.scene.background = color;
-    return {sceneInfo,composer};
+    return {sceneInfo,composer, bloomPass, em};
   }
 
   function setuplin() {
     const sceneInfo = makeScene(document.querySelector('#linkedin')!);
     
-    sceneInfo.camera.position.set(0.265,0.28,0.68);
+    sceneInfo.camera.position.set(0.265,0.28,0.56);
 
     sceneInfo.scene.add( new THREE.AmbientLight( 0x404040 ) );
 
     const pointLight = new THREE.PointLight( 0xffffff, 1 );
     sceneInfo.camera.add( pointLight );
     const renderScene = new RenderPass( sceneInfo.scene, sceneInfo.camera );
-    const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+    const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1,1,1 );
     bloomPass.threshold = params.bloomThreshold;
     bloomPass.strength = params.bloomStrength;
     bloomPass.radius = params.bloomRadius;
-    const em_border = new THREE.MeshStandardMaterial({color:0x3267fa,emissive:0x3267fa})
-    const em_logo = new THREE.MeshStandardMaterial({color:0xf7eded,emissive:0xf7eded})
+    const em_border = new THREE.MeshStandardMaterial({color:0x3419ff,emissive:0x3419ff})
+    const em_logo = new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff})
     const composer = new EffectComposer( renderer );
     composer.addPass( renderScene );
     composer.addPass( bloomPass );
@@ -119,9 +119,7 @@ export function Scene() {
       });
       sceneInfo.scene.add(model);
     });
-    const color = new THREE.Color("rgb(0, 0, 0)")
-    sceneInfo.scene.background = color;
-    return {sceneInfo, composer};
+    return {sceneInfo, composer, bloomPass};
   }
 
   const sceneTitle = setupTitle();
@@ -179,15 +177,22 @@ export function Scene() {
     raycaster.setFromCamera(mouse, linkedin.sceneInfo.camera);
 
     var intersects = raycaster.intersectObjects(linkedin.sceneInfo.scene.children);
-
-    if (intersects.length > 0) {
+    console.log(intersects.length.toFixed(2))
+    if (intersects.length > 0.1) {
 
       renderer.toneMappingExposure = Math.pow(1.5, 4.0 );
+      
+      
+      linkedin.bloomPass.strength = 0.75;
+      sceneTitle.bloomPass.strength = params.bloomStrength;
+      sceneTitle.em.toneMapped = false;
+    } 
+    
+    else {
 
-    } else {
-
-      renderer.toneMappingExposure = Math.pow(0.9, 4.0 );
-
+      renderer.toneMappingExposure = Math.pow(1, 4.0 );
+      linkedin.bloomPass.strength = params.bloomStrength;
+      sceneTitle.em.toneMapped = true;
     }
     frame = requestAnimationFrame(loop);
     time *= 0.01;
